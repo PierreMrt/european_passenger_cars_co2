@@ -1,0 +1,9 @@
+# cached files
+.venv
+.ipynb_checkpoints
+
+# data files (.csv)
+data/*
+
+# keep data folder
+!data/.gitkeep
