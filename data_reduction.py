@@ -71,41 +71,8 @@ def del_rows(df):
 
 
 
-
-
-def remove_outliers(df, value_col):
-    """
-    Supprime les lignes du DataFrame correspondant à des valeurs aberrantes élevées
-    dans la colonne spécifiée, basée sur la méthode de l'intervalle interquartile (IQR).
-
-    Cette fonction est utilisée pour éliminer les voitures ayant une puissance trop élevée,
-    souvent associées aux voitures de sport, en se basant sur la colonne "ep (KW)".
-
-    Paramètres :
-    ------------
-    df : pandas.DataFrame
-        Le DataFrame contenant les données des voitures.
-    value_col : str
-        Le nom de la colonne sur laquelle détecter et supprimer les valeurs aberrantes.
-        Dans ce contexte, il s'agit de "ep (KW)", représentant la puissance des voitures.
-
-    Retourne :
-    ---------
-    pandas.DataFrame
-        Un DataFrame filtré sans les valeurs aberrantes élevées dans la colonne spécifiée.
-    """
-    Q1 = df[value_col].quantile(0.25)
-    Q3 = df[value_col].quantile(0.75)
-
-    IQR = Q3 - Q1
-    upper = Q3 + 1.5 * IQR
-    return df[df[value_col] < upper]
-
-
-
 if __name__ == '__main__':
     df = pd.read_csv(INPUT_PATH)
     df = del_columns(df)
     df = del_rows(df)
-    df = remove_outliers(df, 'ep (KW)')
     df.to_csv(OUTPUT_PATH, index=False)
