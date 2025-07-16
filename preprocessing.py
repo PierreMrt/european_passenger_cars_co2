@@ -28,6 +28,25 @@ def clean_columns(df):
 
 
 def correct_data_type(df):
+    """
+    Corrige le type de données de la colonne "Date of registration" dans le DataFrame
+    en le convertissant au format datetime.
+
+    Cette fonction est utilisée pour s'assurer que la colonne contenant les dates
+    d'enregistrement est au bon format de données, ce qui facilite les opérations
+    et analyses ultérieures sur les dates.
+
+    Paramètres :
+    ------------
+    df : pandas.DataFrame
+        Le DataFrame contenant les données, incluant une colonne nommée
+        "Date of registration" qui doit être convertie en type datetime.
+
+    Retourne :
+    ---------
+    pandas.DataFrame
+        Le DataFrame avec la colonne "Date of registration" convertie en type datetime.
+    """
     df["Date of registration"] = pd.to_datetime(df["Date of registration"])
     return df
 
@@ -63,9 +82,39 @@ def remove_outliers(df, value_col):
 
 
 
+def clean_fuel_type(df):
+    """
+    Nettoie les valeurs de la colonne 'Ft' du DataFrame en les convertissant en minuscules.
+
+    Cette fonction standardise les valeurs de la colonne représentant le type de carburant
+    en les mettant toutes en minuscules. Cela facilite les comparaisons et les analyses
+    ultérieures en évitant les problèmes liés à la casse.
+
+    Paramètres :
+    ------------
+    df : pandas.DataFrame
+        Le DataFrame contenant les données, incluant une colonne nommée 'Ft'
+        qui représente le type de carburant.
+
+    Retourne :
+    ---------
+    pandas.DataFrame
+        Le DataFrame avec les valeurs de la colonne 'Ft' converties en minuscules.
+    """
+    df['Ft'] = df['Ft'].str.lower()
+    return df
+
+
+
+def clean_maker_names(df):
+    # complexe
+    pass
+
+
 def preprocessing(df):
     df = clean_columns(df)
     df = correct_data_type(df)
+    df = clean_fuel_type(df)
     df = remove_outliers(df, 'ep (KW)')
 
     return df
