@@ -39,6 +39,9 @@ def del_columns(df):
 
     # Suppression des colonnes sélectionnées
     df = df.drop(col_to_del, axis=1)
+   
+    # suppresion des doublons
+    df = df.drop_duplicates()
 
     return df
 
@@ -63,8 +66,9 @@ def del_rows(df):
         spécifiés comme peu communs.
     """
 
-    exclusions = ['lpg', 'e85', 'ng', 'hydrogen', 'electric']
-    return df[~df['Ft'].isin(exclusions)] 
+    exclusions = ['lpg', 'e85', 'ng', 'hydrogen', 'unknown', 'ng-biomethane', 'electric']
+    return df[~df['Ft'].str.lower().isin(exclusions)]
+
 
 
 
