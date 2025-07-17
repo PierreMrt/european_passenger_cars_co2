@@ -2,8 +2,8 @@
 import pandas as pd
 
 # Constants
-INPUT_PATH = "data/data.csv"
-OUTPUT_PATH = "data/data_reduced.csv"
+INPUT_PATH = "../data/data.csv"
+OUTPUT_PATH = "../data/data_reduced.csv"
 
 # Functions
 def del_columns(df):
