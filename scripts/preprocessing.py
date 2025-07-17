@@ -3,8 +3,8 @@ import pandas as pd
 import string
 
 # Constants
-INPUT_PATH = "data/data_reduced.csv"
-OUTPUT_PATH = "data/data_processed.csv"
+INPUT_PATH = "../data/data_reduced.csv"
+OUTPUT_PATH = "../data/data_processed.csv"
 
 # Functions
 def clean_columns(df):
