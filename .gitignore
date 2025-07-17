@@ -7,3 +7,4 @@ data/*
 
 # keep data folder
 !data/.gitkeep
+!data/data_reduced.csv
