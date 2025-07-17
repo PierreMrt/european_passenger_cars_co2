@@ -8,9 +8,19 @@ Le jeu de données suivant:
 
 https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b
 
+
+### Création du fichier data_processed.csv
+
+Pour créer le fichier data_processed.csv, il faut:
+
+1. `cd scripts`
+
+2. `python -m data_reduction`
+
 ### TO DO
 
---- reduction des données ---
+--- **reduction des données** ---
+
 (fait via puissance) supression outliers via puissance (ep) ou rapport puissance / poids (ep / Mt)
 
 (fait) supprimer plus de colonnes (VFN, z, Erwltp)
@@ -19,15 +29,17 @@ https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c
 
 
 
---- exploration des données ---
+--- **exploration des données** ---
+
 Si IT pas trop vide après suppression, voir le nombre de valeurs unique en vue de discrétiser et voir si certaines marques consomment moins grâce à ça
 
 Créer qq graph avant/après preprocessing
 
 
 
---- preprocessing ---
-Uniformiser le nom des marques 
+--- **preprocessing** ---
+
+(commencé) Uniformiser le nom des marques 
 
 Vérifier les types des colonnes
 
@@ -35,5 +47,6 @@ Vérifier les types des colonnes
 
 
 
---- faire un dataset commun ---
+--- **faire un dataset commun** ---
+
 (fait) prendre FR, DE, sur plusieurs années
