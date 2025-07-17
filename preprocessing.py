@@ -1,5 +1,6 @@
 # Imports
 import pandas as pd
+import string
 
 # Constants
 INPUT_PATH = "data/data_reduced.csv"
@@ -8,22 +9,16 @@ OUTPUT_PATH = "data/data_processed.csv"
 # Functions
 def clean_columns(df):
     """
-    Nettoie les noms des colonnes du DataFrame en supprimant les espaces superflus au début et à la fin.
-
-    Cette fonction applique la méthode `str.strip()` à chaque nom de colonne du DataFrame
-    pour éliminer les espaces en trop, ce qui peut être utile pour uniformiser les noms de colonnes.
+    Nettoie les noms des colonnes d'un DataFrame en supprimant les espaces superflus au début et à la fin.
 
     Paramètres :
-    ------------
-    df : pandas.DataFrame
-        Le DataFrame dont les noms de colonnes doivent être nettoyés.
+    df (pandas.DataFrame) : Le DataFrame dont les noms de colonnes doivent être nettoyés.
 
     Retourne :
-    ---------
-    pandas.Index
-        Un objet Index contenant les noms des colonnes nettoyés.
+    pandas.DataFrame : Le DataFrame avec les noms de colonnes nettoyés.
     """
-    return df.columns.str.strip()
+    df.columns = df.columns.str.strip()
+    return df
 
 
 
@@ -107,17 +102,33 @@ def clean_fuel_type(df):
 
 
 def clean_maker_names(df):
-    # complexe
-    pass
+    """
+    Nettoie les noms des fabricants de voiture dans une colonne d'un DataFrame en supprimant la ponctuation,
+    les espaces superflus et en convertissant les noms en majuscules.
+
+    Paramètres :
+    df (pandas.DataFrame) : Le DataFrame contenant une colonne nommée 'Mk' avec les noms des fabricants.
+
+    Retourne :
+    pandas.DataFrame : Le DataFrame avec les noms des fabricants nettoyés dans la colonne 'Mk'.
+    """
+    translator = str.maketrans('', '', string.punctuation)
+    df['Mk'] = df['Mk'].apply(lambda x: x.translate(translator) if isinstance(x, str) else x)
+    df['Mk'] = df['Mk'].str.strip()
+    df['Mk'] = df['Mk'].str.upper()
+    return df
 
 
-def preprocessing(df):
+if __name__ == '__main__':
+    df = pd.read_csv(INPUT_PATH)
+
     df = clean_columns(df)
     df = correct_data_type(df)
     df = clean_fuel_type(df)
+    df = clean_maker_names(df)
     df = remove_outliers(df, 'ep (KW)')
 
-    return df
+    df.to_csv(OUTPUT_PATH, index=False)
 
 
 
