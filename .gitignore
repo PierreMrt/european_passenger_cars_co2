@@ -1,6 +1,7 @@
 # cached files
 .venv
 .ipynb_checkpoints
+scripts/__pycache__
 
 # data files (.csv)
 data/*
