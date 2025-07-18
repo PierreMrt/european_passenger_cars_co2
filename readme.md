@@ -45,8 +45,21 @@ Vérifier les types des colonnes
 
 (fait) faire un script .py pour preprocessing et reduction des données
 
+sur les valeurs manquantes, voir si on les supprime ou on les remplace. Regarder c'est vide seulement pour un certain type de véhicules ou non (une marque, une particularité, etc )
+
+faire une foncion générique pour gérer les doublons, outliers, valeurs manquantes
+
+
+--- **feature engineering**---
+
+voir la relation entre les variables, si corrélation importante entre 2 variables 
+
+créer de nouveaux indicateurs (ex: power to weight)
+
 
 
 --- **faire un dataset commun** ---
 
 (fait) prendre FR, DE, sur plusieurs années
+
+Nettoyer le repo
