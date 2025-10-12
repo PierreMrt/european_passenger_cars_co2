@@ -15,9 +15,9 @@ def get_feature_transformer():
         ('ec', StandardScaler(), ['ec (cm3)']),
         ('ep', StandardScaler(), ['ep (KW)']),
         ('m', StandardScaler(), ['m (kg)']),
-        ('fuel', RobustScaler(), ['Fuel consumption']),
+        #('fuel', RobustScaler(), ['Fuel consumption']),
         ('age', MinMaxScaler(), ['age_months']),
-        ('Ft', OneHotEncoder(handle_unknown='ignore'), ['Ft']),
-        ('Mk', OneHotEncoder(handle_unknown='ignore'), ['Mk']),
-        ('Country', OneHotEncoder(handle_unknown='ignore'), ['Country'])
+        ('Ft', OneHotEncoder(handle_unknown='ignore'), ['Ft'])
+        #('Mk', OneHotEncoder(handle_unknown='ignore'), ['Mk']),
+        #('Country', OneHotEncoder(handle_unknown='ignore'), ['Country'])
     ])
