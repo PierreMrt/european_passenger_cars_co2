@@ -25,9 +25,9 @@ def del_columns(df):
         # Colonnes à supprimer car vides
         'MMS', 'Enedc (g/km)', 'W (mm)', 'At1 (mm)', 'At2 (mm)', 'Ernedc (g/km)', 'De', 'Vf',
         # Colonnes à supprimer car pas assez remplies
-        'RLFI', 'z (Wh/km)', 'Erwltp (g/km)',
+        'RLFI', 'z (Wh/km)', 'Erwltp (g/km)', 'IT', 'ech',
         # Colonnes à supprimer car doublons d'information
-        'Mp', 'Mh', 'Man', 'Cr', 'm (kg)', 'Fm', 'VFN',
+        'Mp', 'Mh', 'Man', 'Cr', 'Mt', 'Fm', 'VFN', 'Cn',
         # Colonnes à supprimer car non pertinentes
         'ID', 'Status', 'r', 'year', 'Tan', 'Va', 'Ve', 'Ct', 'Cr', 'T',
         # Colonnes concernant uniquement les véhicules électriques
@@ -71,8 +71,16 @@ def del_rows(df):
 
 
 
-if __name__ == '__main__':
+def reduction(csv=True):
     df = pd.read_csv(INPUT_PATH)
     df = del_columns(df)
     df = del_rows(df)
-    df.to_csv(OUTPUT_PATH, index=False)
+
+    if csv:
+        df.to_csv(OUTPUT_PATH, index=False)
+    else:
+        return df
+    
+
+if __name__ == '__main__':
+    reduction(csv=True)
