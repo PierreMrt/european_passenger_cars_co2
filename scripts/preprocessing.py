@@ -216,6 +216,7 @@ def processing(csv=True):
     df = pareto_major_brands(df, threshold=90)
     df = remove_outliers(df, 'ep (KW)')
     df = manage_missing_values(df)
+    df = df.drop_duplicates()
 
     if csv:
         df.to_csv(OUTPUT_PATH, index=False)
