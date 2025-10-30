@@ -1,0 +1,13 @@
+2025-10-30 17:35:06,082 - INFO - Données chargées depuis data/data_processed.csv
+2025-10-30 17:35:06,147 - INFO - Données préparées et divisées en ensembles d'entraînement/test.
+2025-10-30 17:35:06,150 - INFO - Pipeline créé avec succès.
+2025-10-30 17:35:06,150 - INFO - Début de la validation croisée...
+2025-10-30 17:37:02,349 - INFO - Validation croisée terminée.
+2025-10-30 17:38:18,856 - INFO - Pipeline entraîné sur l'ensemble d'entraînement complet.
+2025-10-30 17:38:18,857 - INFO - Résultats de la validation croisée :
+2025-10-30 17:38:18,857 - INFO -   MSE d'entraînement : 26.9275
+2025-10-30 17:38:18,858 - INFO -   R² d'entraînement : 0.9840
+2025-10-30 17:38:18,858 - INFO -   MSE de validation : 39.7627
+2025-10-30 17:38:18,858 - INFO -   R² de validation : 0.9763
+2025-10-30 17:38:21,654 - INFO - Évaluation sur l'ensemble de test : MSE = 37.8956, R² = 0.9774
+2025-10-30 17:42:15,542 - INFO - Modèle sauvegardé avec succès dans models/random_forest_model.jbl.lzma
