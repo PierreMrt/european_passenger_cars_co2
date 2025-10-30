@@ -6,6 +6,9 @@ scripts/__pycache__
 # data files (.csv)
 data/*
 
+# joblib models
+models/*joblib
+
 # keep data folder
 !data/.gitkeep
 !data/data_processed.csv
