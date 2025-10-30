@@ -7,7 +7,7 @@ scripts/__pycache__
 data/*
 
 # joblib models
-models/*joblib
+models/best_random_forest_model.joblib
 
 # keep data folder
 !data/.gitkeep
