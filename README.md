@@ -41,23 +41,42 @@ https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c
 european_passenger_cars_co2/
 │
 ├── data/
-│   └── data_processed.csv        # Données prétraitées
+│   └── data_processed.csv              # Données prétraitées
 │
-├── models/
-│   └── random_forest_model.jbl.lzma  # Modèle entraîné sauvegardé
+├── exploration/
+│   └── *.ipynb                         # Explorations des données
 │
-├── scripts/
-│   ├── data_reduction.py         # Réduction et nettoyage des données
-│   ├── feature_engineering.py    # Ingénierie des caractéristiques
-│   ├── preprocessing.py          # Prétraitement des données
-│   └── pipepline.py              # Pipeline de modélisation
+├── fig/
+│   └── *.png                           # Figures sauvegardées    
 │
 ├── logs/
-│   └── training.log              # Logs des entrainements de modèles
-|
-├── *.ipynb                       # explorations des données
-|
-└── README.md                     # Documentation du projet
+│   └── training.log                    # Logs des entrainements de modèles
+│
+├── models/
+│   └── random_forest_model.jbl.lzma    # Modèle entraîné sauvegardé
+│
+├── scripts/
+│   ├── data_reduction.py               # Réduction et nettoyage des données
+│   ├── feature_engineering.py          # Ingénierie des caractéristiques
+│   ├── pipepline.py                    # Pipeline de modélisation
+│   └── preprocessing.py                # Prétraitement des données
+│
+├── streamlit_app/
+│   ├── pages/                          # Pages du streamlit
+│   │   ├── compare.py                  
+│   │   └── predict.py
+│   ├── utils/                          # Fichiers de config du streamlit
+│   │   ├── data_loaders.py
+│   │   ├── model_utils.py
+│   │   └── viz_tools.py
+│   └── app.py                          # Application streamlit
+│
+├── .gitattributes                      # Configuration pour LFS
+├── .gitignore                          # Fichiers à ignorer
+├── LICENSE                             # Licence du projet
+├── README.md                           # Documentation du projet
+└── requirements.txt                    # Prérequis à installer
+
 ```
 
 ---
