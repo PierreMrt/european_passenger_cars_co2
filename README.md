@@ -107,7 +107,10 @@ Pour exécuter ce projet, vous aurez besoin des bibliothèques Python suivantes 
 - `pandas`
 - `numpy`
 - `scikit-learn`
+- `shap`
 - `joblib`
+- `matplotlib`
+- `streamlit`
 
 Installez-les avec la commande suivante :
 
