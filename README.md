@@ -111,6 +111,7 @@ Pour exécuter ce projet, vous aurez besoin des bibliothèques Python suivantes 
 - `joblib`
 - `matplotlib`
 - `streamlit`
+- `seaborn`
 
 Installez-les avec la commande suivante :
 
