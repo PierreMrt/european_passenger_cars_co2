@@ -2,6 +2,9 @@
 .venv
 .ipynb_checkpoints
 scripts/__pycache__
+streamlit_app/__pycache__
+streamlit_app/pages/__pycache__
+streamlit_app/utils/__pycache__
 
 # data files (.csv)
 data/*
