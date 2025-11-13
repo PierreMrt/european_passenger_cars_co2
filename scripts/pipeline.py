@@ -1,11 +1,16 @@
 import pandas as pd
 import logging
-from feature_engineering import get_feature_transformer
+import joblib
+import argparse
+
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import cross_validate, train_test_split
 from sklearn.metrics import mean_squared_error, make_scorer, r2_score
 from sklearn.ensemble import RandomForestRegressor
-import joblib
+
+from feature_engineering import get_feature_transformer
+from data_reduction import reduction as reduce_data
+from preprocessing import processing as preprocess
 
 # Configuration du logger
 logging.basicConfig(
@@ -135,16 +140,25 @@ def save_model(model, output_path):
         logger.error(f"Erreur lors de la sauvegarde du modèle : {e}")
         raise
 
-def main():
+def run_pipeline(df=None):
     """
-    Fonction principale.
+    Exécute la pipeline de traitement et de modélisation.
+    Args:
+        df (pd.DataFrame, optionnel): DataFrame à utiliser. Si None, charge les données depuis INPUT_DATA.
     """
     # Paramètres
     target = "Ewltp (g/km)"
     features = ["m (kg)", "Ft", "ec (cm3)", "ep (KW)", "age_months"]
 
-    # Chargement des données
-    df = load_data(INPUT_DATA)
+    # Chargement ou utilisation du DataFrame fourni
+    if df is None:
+        df = load_data(INPUT_DATA)
+        logger.info("Données chargées depuis le fichier par défaut.")
+
+    # Sauvegarde des données traitées (sauf si on commence à partir de 'preprocessed')
+    if not isinstance(df, str):  # Si df n'est pas un chemin (cas où on commence à 'preprocessed')
+        df.to_csv(INPUT_DATA, index=False)
+        logger.info(f"Données traitées sauvegardées dans {INPUT_DATA}.")
 
     # Préparation des données
     X_train, X_test, y_train, y_test = prepare_data(df, target, features)
@@ -165,5 +179,42 @@ def main():
     # Sauvegarde du Pipeline
     save_model(pipeline, MODEL_OUTPUT)
 
+def main(start_from="raw"):
+    """
+    Fonction principale pour exécuter la pipeline en fonction du point de départ.
+    Args:
+        start_from (str): Point de départ de la pipeline ('raw', 'reduced', 'preprocessed').
+    """
+    logger.info(f"Début de la pipeline avec le point de départ : {start_from}")
+
+    if start_from == "raw":
+        # Exécuter toutes les étapes
+        logger.info(f"Début de la réduction des données...")
+        df = reduce_data(csv=False)
+        logger.info(f"Données réduites avec succès.")
+        logger.info(f"Début du prétraitement des données...")
+        df = preprocess(df, csv=False)
+        logger.info(f"Données prétraitées avec succès.")
+        run_pipeline(df)
+    elif start_from == "reduced":
+        # Commencer après la réduction des données
+        logger.info(f"Début du prétraitement des données...")
+        df = preprocess(csv=False)
+        logger.info(f"Données prétraitées avec succès.")
+        run_pipeline(df)
+    elif start_from == "preprocessed":
+        # Commencer après le prétraitement (utiliser les données déjà traitées)
+        run_pipeline()
+    else:
+        raise ValueError("Valeur invalide pour 'start_from'. Utilisez 'raw', 'reduced' ou 'preprocessed'.")
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Pipeline de modélisation pour les émissions de CO2 des voitures.")
+    parser.add_argument(
+        "--start-from",
+        choices=["raw", "reduced", "preprocessed"],
+        default="raw",
+        help="Point de départ pour la pipeline : 'raw' (données brutes), 'reduced' (après réduction), ou 'preprocessed' (après prétraitement)."
+    )
+    args = parser.parse_args()
+    main(args.start_from)

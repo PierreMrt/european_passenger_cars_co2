@@ -1,13 +1,21 @@
-2025-10-30 17:35:06,082 - INFO - DonnÈes chargÈes depuis data/data_processed.csv
-2025-10-30 17:35:06,147 - INFO - DonnÈes prÈparÈes et divisÈes en ensembles d'entraÓnement/test.
-2025-10-30 17:35:06,150 - INFO - Pipeline crÈÈ avec succËs.
-2025-10-30 17:35:06,150 - INFO - DÈbut de la validation croisÈe...
-2025-10-30 17:37:02,349 - INFO - Validation croisÈe terminÈe.
-2025-10-30 17:38:18,856 - INFO - Pipeline entraÓnÈ sur l'ensemble d'entraÓnement complet.
-2025-10-30 17:38:18,857 - INFO - RÈsultats de la validation croisÈe :
-2025-10-30 17:38:18,857 - INFO -   MSE d'entraÓnement : 26.9275
-2025-10-30 17:38:18,858 - INFO -   R≤ d'entraÓnement : 0.9840
-2025-10-30 17:38:18,858 - INFO -   MSE de validation : 39.7627
-2025-10-30 17:38:18,858 - INFO -   R≤ de validation : 0.9763
-2025-10-30 17:38:21,654 - INFO - …valuation sur l'ensemble de test : MSE = 37.8956, R≤ = 0.9774
-2025-10-30 17:42:15,542 - INFO - ModËle sauvegardÈ avec succËs dans models/random_forest_model.jbl.lzma
+
+2025-11-13 19:28:55,682 - INFO - D√©but de la pipeline avec le point de d√©part : reduced
+2025-11-13 19:28:55,682 - INFO - D√©but du pr√©traitement des donn√©es...
+2025-11-13 19:29:52,230 - INFO - D√©but de la pipeline avec le point de d√©part : reduced
+2025-11-13 19:29:52,230 - INFO - D√©but du pr√©traitement des donn√©es...
+2025-11-13 19:32:22,898 - INFO - D√©but de la pipeline avec le point de d√©part : reduced
+2025-11-13 19:32:22,898 - INFO - D√©but du pr√©traitement des donn√©es...
+2025-11-13 19:32:33,373 - INFO - Donn√©es pr√©trait√©es avec succ√®s.
+2025-11-13 19:32:35,416 - INFO - Donn√©es trait√©es sauvegard√©es dans data/data_processed.csv.
+2025-11-13 19:32:35,570 - INFO - Donn√©es pr√©par√©es et divis√©es en ensembles d'entra√Ænement/test.
+2025-11-13 19:32:35,577 - INFO - Pipeline cr√©√© avec succ√®s.
+2025-11-13 19:32:35,577 - INFO - D√©but de la validation crois√©e...
+2025-11-13 19:34:05,431 - INFO - Validation crois√©e termin√©e.
+2025-11-13 19:35:04,766 - INFO - Pipeline entra√Æn√© sur l'ensemble d'entra√Ænement complet.
+2025-11-13 19:35:04,767 - INFO - R√©sultats de la validation crois√©e :
+2025-11-13 19:35:04,767 - INFO -   MSE d'entra√Ænement : 31.7374
+2025-11-13 19:35:04,767 - INFO -   R¬≤ d'entra√Ænement : 0.9826
+2025-11-13 19:35:04,767 - INFO -   MSE de validation : 48.5071
+2025-11-13 19:35:04,767 - INFO -   R¬≤ de validation : 0.9734
+2025-11-13 19:35:06,822 - INFO - √âvaluation sur l'ensemble de test : MSE = 46.3801, R¬≤ = 0.9746
+2025-11-13 19:37:56,953 - INFO - Mod√®le sauvegard√© avec succ√®s dans models/random_forest_model.jbl.lzma

@@ -2,8 +2,8 @@
 import pandas as pd
 
 # Constants
-INPUT_PATH = "../data/data.csv"
-OUTPUT_PATH = "../data/data_reduced.csv"
+INPUT_PATH = "data/data.csv"
+OUTPUT_PATH = "data/data_reduced.csv"
 
 # Functions
 def del_columns(df):
@@ -72,7 +72,7 @@ def del_rows(df):
 
 
 def reduction(csv=True):
-    df = pd.read_csv(INPUT_PATH)
+    df = pd.read_csv(INPUT_PATH, low_memory=False)
     df = del_columns(df)
     df = del_rows(df)
 

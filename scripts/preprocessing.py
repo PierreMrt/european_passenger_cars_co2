@@ -4,8 +4,8 @@ import string
 from datetime import datetime
 
 # Constants
-INPUT_PATH = "../data/data_reduced.csv"
-OUTPUT_PATH = "../data/data_processed.csv"
+INPUT_PATH = "data/data_reduced.csv"
+OUTPUT_PATH = "data/data_processed.csv"
 
 # Functions
 def clean_columns(df):
@@ -206,8 +206,9 @@ def manage_missing_values(df):
 
 
 
-def processing(csv=True):
-    df = pd.read_csv(INPUT_PATH)
+def processing(df=None, csv=True):
+    if df is None:
+        df = pd.read_csv(INPUT_PATH)
 
     df = clean_columns(df)
     df = registration_date_as_age(df)
