@@ -58,7 +58,7 @@ european_passenger_cars_co2/
 ├── scripts/
 │   ├── data_reduction.py               # Réduction et nettoyage des données
 │   ├── feature_engineering.py          # Ingénierie des caractéristiques
-│   ├── pipepline.py                    # Pipeline de modélisation
+│   ├── pipeline.py                     # Pipeline de modélisation
 │   └── preprocessing.py                # Prétraitement des données
 │
 ├── streamlit_app/
@@ -114,6 +114,7 @@ Ce transformateur est conçu pour être intégré dans un pipeline scikit-learn 
 
 ### `pipepline.py`
 Ce script contient le **pipeline complet** pour entraîner et évaluer un modèle de machine learning. Il utilise :
+- argparse pour la modularité
 - Un pipeline scikit-learn pour enchaîner les étapes de feature engineering et de modélisation.
 - Validation croisée pour évaluer les performances du modèle.
 - Sauvegarde du modèle entraîné.
@@ -142,26 +143,52 @@ pip install -r requirements.txt
 
 ## Utilisation
 
-### 1. Prétraitement des Données
-Exécutez le script `data_reduction.py` pour nettoyer et réduire les données brutes :
+### Lancer la pipeline complète
 
-```bash
-python scripts/data_reduction.py
-```
+La pipeline peut être exécutée en une seule commande avec différents points de départ :
 
-### 2. Ingénierie des Caractéristiques
-Exécutez le script `preprocessing.py` pour nettoyer et gérer les valeurs manquantes :
+- **À partir des données brutes** (exécute toutes les étapes : réduction, prétraitement, entraînement) :
+  ```bash
+  python scripts/pipeline.py --start-from raw
+  ```
 
-```bash
-python scripts/preprocessing.py
-```
+- **À partir des données réduites** (exécute le prétraitement et l'entraînement) :
+  ```bash
+  python scripts/pipeline.py --start-from reduced
+  ```
 
-### 3. Entraînement du Modèle
-Exécutez le script `pipepline.py` pour entraîner le modèle et sauvegarder les résultats :
+- **À partir des données prétraitées** (exécute uniquement l'entraînement) :
+  ```bash
+  python scripts/pipeline.py --start-from preprocessed
+  ```
 
-```bash
-python scripts/pipepline.py
-```
+### Lancer les étapes individuelles
+
+Les étapes de la pipeline peuvent également être exécutées individuellement:
+
+1. **Prétraitement des données** :
+   Exécutez le script `data_reduction.py` pour nettoyer et réduire les données brutes :
+   ```bash
+   python scripts/data_reduction.py
+   ```
+
+2. **Ingénierie des caractéristiques** :
+   Exécutez le script `preprocessing.py` pour nettoyer et gérer les valeurs manquantes :
+   ```bash
+   python scripts/preprocessing.py
+   ```
+
+3. **Entraînement du modèle** :
+   Exécutez le script `pipeline.py` pour entraîner le modèle et sauvegarder les résultats (équivalent à `--start-from preprocessed`) :
+   ```bash
+   python scripts/pipeline.py
+   ```
+
+### Remarques
+
+- Assurez-vous que les fichiers de données nécessaires (`data.csv`, `data_processed.csv`, etc.) sont présents dans le répertoire `data/` avant de lancer les scripts.
+- Les résultats intermédiaires et finaux seront sauvegardés dans les répertoires `data/` et `models/`.
+
 
 ---
 
