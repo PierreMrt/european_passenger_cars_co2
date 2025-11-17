@@ -19,6 +19,14 @@ def run_predict_page():
     }
     fuel_types = ['essence', 'essence/électrique', 'diesel', 'diesel/électrique']
 
+    # Mapping depuis le français vers l'anglais
+    fuel_type_mapping = {
+    "essence": "petrol",
+    "essence/électrique": "petrol/electric",
+    "diesel": "diesel",
+    "diesel/électrique": "diesel/electric"
+    }
+
     st.header("Prédiction de l'émission de CO₂ pour un véhicule")
 
     input_features = get_input_features()
@@ -30,7 +38,10 @@ def run_predict_page():
         else:
             user_inputs[feat] = st.number_input(feature_labels[feat], value=default)
 
+    # Convertir le type de carburant en anglais
+    user_inputs["Ft"] = fuel_type_mapping[user_inputs["Ft"]]
     model = load_model()
+
     df = pd.DataFrame([user_inputs])
 
     if st.button("Prédire"):
