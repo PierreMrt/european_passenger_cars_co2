@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-from utils.data_loaders import load_model, get_input_features
-from utils.model_utils import predict_emission, explain_prediction, prettify_feature_name
+from utils.data_loaders import load_model, get_input_features, load_processed_data
+from utils.model_utils import predict_emission, explain_prediction, prettify_feature_name,  calculate_emission_percentile
 from utils.viz_tools import plot_shap_values
 
 def run_predict_page():
@@ -47,6 +47,22 @@ def run_predict_page():
     if st.button("Prédire"):
         prediction = predict_emission(model, df)
         st.success(f"Émission de CO₂ prédite : {prediction:.2f} g/km")
+
+        # Load dataset and calculate percentile
+        data = load_processed_data()
+        percentile = calculate_emission_percentile(prediction, data)
+        
+        # Display percentile with contextual message
+        if percentile < 25:
+            message = "🟢 Très faible ! Votre véhicule émet moins que la majorité des véhicules."
+        elif percentile < 50:
+            message = "🟡 Assez faible. Votre véhicule est en dessous de la moyenne."
+        elif percentile < 75:
+            message = "🟠 Au-dessus de la moyenne. Considérez des alternatives plus écologiques."
+        else:
+            message = "🔴 Très élevé ! Votre véhicule fait partie des plus polluants."
+        
+        st.info(f"📊 Percentile : {percentile:.1f}% - {message}")
 
         explanation = explain_prediction(model, df)
         if isinstance(explanation, dict) and 'dict' in explanation:

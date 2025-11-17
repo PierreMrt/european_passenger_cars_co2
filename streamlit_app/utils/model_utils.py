@@ -1,5 +1,21 @@
 import shap
 
+
+def calculate_emission_percentile(predicted_emission, data):
+    """
+    Calcule le percentile d'une émission prédite par rapport à un jeu de données.
+    
+    Args:
+        predicted_emission (float): Valeur d'émission de CO₂ prédite.
+        data (pandas.DataFrame): Jeu de données contenant la colonne 'Ew (g/km)'.
+    
+    Returns:
+        float: Percentile de l'émission (0-100).
+    """
+    emissions = data['Ewltp (g/km)'].dropna()
+    percentile = (emissions < predicted_emission).sum() / len(emissions) * 100
+    return percentile
+
 def predict_emission(model, df):
     """
     Effectue une prédiction d'émission de CO₂ à partir d'un modèle entraîné et d'une entrée de données.
