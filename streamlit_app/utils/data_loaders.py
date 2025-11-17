@@ -28,8 +28,8 @@ def get_input_features():
     """
     return {
         "ec (cm3)": 1199.0,
-        "ep (KW)": 96.0,
-        "m (kg)": 1233.0,
+        "ep (KW)": 130.0,
+        "m (kg)": 1500.0,
         "age_months": 52.0,
         "Ft": "petrol"
     }

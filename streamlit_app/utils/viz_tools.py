@@ -46,9 +46,14 @@ def plot_shap_values(shap_values, feature_names, feature_labels):
     labels = [prettify_feature_name(name, feature_labels) for name in feature_names]
     shap_pair = sorted(zip(labels, shap_values), key=lambda x: abs(x[1]), reverse=True)[:5]
     feat, vals = zip(*shap_pair)
+    colors = ['crimson' if v > 0 else 'green' for v in vals]
+    
     fig, ax = plt.subplots()
-    ax.barh(feat, vals, color="skyblue")
+    bars = ax.barh(feat, vals, color=colors)
     ax.set_xlabel("Valeur SHAP")
     ax.set_title("Contribution des variables (SHAP)")
+    ax.axvline(0, color='gray', linewidth=1)
     plt.gca().invert_yaxis()
+    
+    plt.tight_layout()
     return fig

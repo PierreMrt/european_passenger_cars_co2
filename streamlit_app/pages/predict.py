@@ -48,11 +48,11 @@ def run_predict_page():
         prediction = predict_emission(model, df)
         st.success(f"Émission de CO₂ prédite : {prediction:.2f} g/km")
 
-        # Load dataset and calculate percentile
+        # Charge le jeu de données prétraité pour le calcul du percentile
         data = load_processed_data()
         percentile = calculate_emission_percentile(prediction, data)
         
-        # Display percentile with contextual message
+        # Montre un message basé sur le percentile
         if percentile < 25:
             message = "🟢 Très faible ! Votre véhicule émet moins que la majorité des véhicules."
         elif percentile < 50:
@@ -66,9 +66,18 @@ def run_predict_page():
 
         explanation = explain_prediction(model, df)
         if isinstance(explanation, dict) and 'dict' in explanation:
-            st.write("Importances des variables (SHAP, top 5) :")
-            for feat, imp in explanation['dict'].items():
-                st.write(f"- {prettify_feature_name(feat, feature_labels)} : {float(imp):.3f}")
+            top_items = sorted(explanation["dict"].items(), key=lambda x: abs(x[1]), reverse=True)[:5]
+
+            # Construction du tableau markdown
+            markdown_table = "| Variable | Valeur SHAP |\n|---|---|\n"
+            for feat, imp in top_items:
+                label = prettify_feature_name(feat, feature_labels)
+                markdown_table += f"| {label} | {imp:.3f} |\n"
+
+            st.markdown("🔍 **Importances des variables (SHAP, top 5):**")
+            st.markdown(markdown_table)
+
+            # Visualisation des valeurs SHAP
             fig = plot_shap_values(explanation['shap_values'], explanation['feature_names'], feature_labels)
             st.pyplot(fig)
         else:
