@@ -194,6 +194,28 @@ Les étapes de la pipeline peuvent également être exécutées individuellement
 
 ## Résultats
 
+**Pages streamlit**
+
+- Exploration
+  - JDD brut
+    - Valeurs nulles pour chaque colonne
+    - Type de carburant 
+    - Outliers - voitures trop puissantes (chandelier/boite à moustache)
+  - JDD réduit
+    - Matrice de corrélation
+    - Nuage de points sur différentes caractéristiques (masse, ec, ep)
+  - JDD processed
+    - Résultats
+      - Classification ?
+      - Valeurs prédites/valeurs réelles (régression linéaire/random forest)
+      - SHAP
+
+- Comparaison
+  - marque
+  - pays
+
+- Predictions
+
 A COMPLETER
 
 Les résultats du modèle (métriques d'évaluation, modèle entraîné) sont sauvegardés dans le dossier `models/`. Vous pouvez charger le modèle sauvegardé avec `joblib` pour faire des prédictions :
