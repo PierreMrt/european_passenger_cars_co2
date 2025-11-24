@@ -29,7 +29,7 @@ def run_compare_page():
     group_by = group_by_options[group_by_fr]
 
     if st.button("Afficher la comparaison"):
-        fig = brand_country_comparison_plot(data, group_by, selected_metric_fr)
-        st.pyplot(fig)
+        fig = brand_country_comparison_plot(data, group_by, group_by_fr, selected_metric_fr)
+        st.plotly_chart(fig, width='stretch')
 
 

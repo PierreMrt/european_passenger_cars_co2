@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
 from .model_utils import prettify_feature_name
 
-def brand_country_comparison_plot(data, group_by, metric):
+import pandas as pd
+import plotly.express as px
+
+def brand_country_comparison_plot(data, group_by, group_by_fr, metric):
     """
-    Génère un graphique comparant une métrique moyenne par marque ou par pays.
+    Génère un graphique comparant une métrique moyenne par marque ou par pays avec Plotly.
 
     Args:
         data (pandas.DataFrame): Données contenant les émissions et caractéristiques des véhicules.
@@ -11,7 +14,7 @@ def brand_country_comparison_plot(data, group_by, metric):
         metric (str): Nom de la métrique à analyser (Émissions de CO₂, Taille du moteur, Puissance, Âge).
 
     Returns:
-        matplotlib.figure.Figure: Figure du graphique à barres.
+        plotly.graph_objs._figure.Figure: Figure du graphique à barres.
     """
     metric_map = {
         "Émissions de CO₂": "Ewltp (g/km)",
@@ -19,21 +22,40 @@ def brand_country_comparison_plot(data, group_by, metric):
         "Puissance": "ep (KW)",
         "Âge": "age_months"
     }
-    group_col = "Mk" if group_by == "Marque" else "Country"
+    
+    # Sélection de la colonne de groupement
+    group_col = "Mk" if group_by == "Mk" else "Country"
+    # Sélection de la colonne de métrique
     metric_col = metric_map.get(metric, metric)
 
-    grouped = data.groupby(group_col)[metric_col].mean().sort_values()
-    fig, ax = plt.subplots(figsize=(10, 6))
-    grouped.plot(kind="bar", ax=ax)
-    ax.set_ylabel(metric)
-    ax.set_title(f"{metric} par {group_by}")
-    plt.tight_layout()
+    # Calcul de la moyenne et tri
+    grouped_df = data.groupby(group_col)[metric_col].mean().sort_values().reset_index()
+
+    # Création du graphique
+    fig = px.bar(
+        grouped_df,
+        x=group_col,
+        y=metric_col,
+        title=f"{metric} par {group_by_fr}",
+        labels={group_col: group_by_fr, metric_col: metric},
+        color=metric_col,
+        color_continuous_scale='Blues' 
+    )
+
+    # Amélioration de la mise en page
+    fig.update_layout(
+        showlegend=False, 
+        xaxis_title=group_by_fr,
+        yaxis_title=metric,
+        coloraxis_showscale=False
+    )
+
     return fig
 
 
 def plot_shap_values(shap_values, feature_names, feature_labels):
     """
-    Trace un graphique à barres horizontales des valeurs SHAP des caractéristiques.
+    Trace un graphique à barres horizontales des valeurs SHAP avec Plotly Express.
 
     Args:
         shap_values (list or array): Valeurs SHAP d'une prédiction.
@@ -41,19 +63,54 @@ def plot_shap_values(shap_values, feature_names, feature_labels):
         feature_labels (dict): Dictionnaire de noms pour les caractéristiques.
 
     Returns:
-        matplotlib.figure.Figure: Figure du graphique SHAP.
+        plotly.graph_objs._figure.Figure: Figure du graphique SHAP.
     """
+    # 1. Préparation des données
     labels = [prettify_feature_name(name, feature_labels) for name in feature_names]
-    shap_pair = sorted(zip(labels, shap_values), key=lambda x: abs(x[1]), reverse=True)[:5]
-    feat, vals = zip(*shap_pair)
-    colors = ['crimson' if v > 0 else 'green' for v in vals]
     
-    fig, ax = plt.subplots()
-    bars = ax.barh(feat, vals, color=colors)
-    ax.set_xlabel("Valeur SHAP")
-    ax.set_title("Contribution des variables (SHAP)")
-    ax.axvline(0, color='gray', linewidth=1)
-    plt.gca().invert_yaxis()
+    # Création d'un DataFrame pour manipuler facilement les tris et couleurs
+    df = pd.DataFrame({
+        'Feature': labels,
+        'SHAP Value': shap_values
+    })
     
-    plt.tight_layout()
+    # Calcul de la valeur absolue pour le tri
+    df['Abs Value'] = df['SHAP Value'].abs()
+    
+    # Tri par valeur absolue décroissante et sélection du top 5
+    df_top = df.sort_values(by='Abs Value', ascending=False).head(5)
+    
+    # Définition de la couleur selon le signe (> 0 = Crimson, sinon Green)
+    df_top['Color'] = df_top['SHAP Value'].apply(lambda x: 'crimson' if x > 0 else 'green')
+
+    # 2. Création du graphique
+    # On inverse l'ordre du DF pour que Plotly affiche le plus grand en haut (l'axe Y se dessine de bas en haut)
+    df_top = df_top.iloc[::-1] 
+
+    fig = px.bar(
+        df_top,
+        x='SHAP Value',
+        y='Feature',
+        orientation='h',
+        title="Contribution des variables (SHAP)",
+        text='SHAP Value', 
+    )
+
+    # 3. Personnalisation du style
+    fig.update_traces(
+        marker_color=df_top['Color'],  
+        texttemplate='%{text:.3f}',   
+        textposition='outside'        
+    )
+
+    fig.update_layout(
+        xaxis_title="Valeur SHAP",
+        yaxis_title=None,              
+        showlegend=False,             
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+
+    # Ajout de la ligne verticale à 0
+    fig.add_vline(x=0, line_width=1, line_color="gray")
+
     return fig

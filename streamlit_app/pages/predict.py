@@ -79,6 +79,6 @@ def run_predict_page():
 
             # Visualisation des valeurs SHAP
             fig = plot_shap_values(explanation['shap_values'], explanation['feature_names'], feature_labels)
-            st.pyplot(fig)
+            st.plotly_chart(fig, width='stretch')
         else:
             st.write(f"Importances des variables : {explanation}")
