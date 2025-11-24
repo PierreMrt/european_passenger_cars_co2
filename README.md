@@ -133,8 +133,17 @@ Pour exécuter ce projet, vous aurez besoin des bibliothèques Python suivantes 
 - `streamlit`
 - `seaborn`
 
-Installez-les avec la commande suivante :
 
+Créez un environnement virtuel :
+```bash
+python -m venv .venv
+```
+
+Activez le :
+- Sur windows : `source .venv/Script/activate`
+- Sur linux/Mac : `source .venv/bin/activate`
+
+Installez-les avec la commande suivante :
 ```bash
 pip install -r requirements.txt
 ```
@@ -216,7 +225,10 @@ Les étapes de la pipeline peuvent également être exécutées individuellement
 
 - Predictions
 
-A COMPLETER
+Pour lancer streamlit:
+``` bash
+streamlit run streamlit_app/app.py
+``` 
 
 Les résultats du modèle (métriques d'évaluation, modèle entraîné) sont sauvegardés dans le dossier `models/`. Vous pouvez charger le modèle sauvegardé avec `joblib` pour faire des prédictions :
 
