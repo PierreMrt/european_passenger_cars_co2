@@ -9,9 +9,13 @@ streamlit_app/utils/__pycache__
 # data files (.csv)
 data/*
 
+# large files
+plotly_analysis.ipynb
+
 # joblib models
 models/best_random_forest_model.joblib
 
 # keep data folder
 !data/.gitkeep
 !data/data_processed.csv
+

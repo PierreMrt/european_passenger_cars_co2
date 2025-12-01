@@ -37,3 +37,19 @@
 2025-11-17 19:03:06,067 - INFO -   R² de validation : 0.9802
 2025-11-17 19:03:08,119 - INFO - Évaluation sur l'ensemble de test : MSE = 34.2492, R² = 0.9797
 2025-11-17 19:05:44,033 - INFO - Modèle sauvegardé avec succès dans models/random_forest_model.jbl.lzma
+2025-12-01 18:03:28,889 - INFO - Début de la pipeline avec le point de départ : reduced
+2025-12-01 18:03:28,889 - INFO - Début du prétraitement des données...
+2025-12-01 18:03:37,204 - INFO - Données prétraitées avec succès.
+2025-12-01 18:03:39,006 - INFO - Données traitées sauvegardées dans data/data_processed.csv.
+2025-12-01 18:03:39,076 - INFO - Données préparées et divisées en ensembles d'entraînement/test.
+2025-12-01 18:03:39,082 - INFO - Pipeline créé avec succès.
+2025-12-01 18:03:39,083 - INFO - Début de la validation croisée...
+2025-12-01 18:04:56,089 - INFO - Validation croisée terminée.
+2025-12-01 18:05:46,278 - INFO - Pipeline entraîné sur l'ensemble d'entraînement complet.
+2025-12-01 18:05:46,279 - INFO - Résultats de la validation croisée :
+2025-12-01 18:05:46,279 - INFO -   MSE d'entraînement : 24.0535
+2025-12-01 18:05:46,279 - INFO -   R² d'entraînement : 0.9866
+2025-12-01 18:05:46,279 - INFO -   MSE de validation : 34.9778
+2025-12-01 18:05:46,279 - INFO -   R² de validation : 0.9805
+2025-12-01 18:05:48,056 - INFO - Évaluation sur l'ensemble de test : MSE = 32.6959, R² = 0.9816
+2025-12-01 18:08:32,642 - INFO - Modèle sauvegardé avec succès dans models/random_forest_model.jbl.lzma
