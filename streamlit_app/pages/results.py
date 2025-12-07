@@ -136,8 +136,14 @@ def run_results_page():
             st.warning("⚠️ Le fichier 'rf_no_fuel_comparison.html' n'a pas été trouvé.")
         
         st.markdown("""
-        **Interprétation :** Le feature engineering (normalisation des variables numériques et encodage optimisé) 
-        permet d'améliorer les performances du modèle en mettant toutes les variables sur une échelle comparable.
+        **Interprétation :** Bien que le feature engineering ne montre pas d'amélioration significative 
+        du R² pour ce modèle Random Forest (les arbres de décision sont naturellement invariants à l'échelle), 
+        il reste une pratique recommandée pour plusieurs raisons :
+
+        - **Robustesse** : Le modèle sera plus stable face à de nouvelles données avec des échelles différentes et les transformations réduisent l'impact des outliers.
+        - **Généralisation** : Utilisation facilitée pour d'autres modèles qui pourraient bénéficier de données standardisées (ex. régression linéaire, SVM)
+
+        Même si l'impact immédiat sur les performances est marginal pour ce modèle spécifique, la standardisation et la normalisation restent importantes si nous voulons pousser plus loin notre cas d'usage.
         """)
         
         # Importance des variables

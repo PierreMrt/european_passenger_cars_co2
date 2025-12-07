@@ -578,10 +578,23 @@ def random_forest_without_fuel_comparison_graph(df):
         },
         color_discrete_map={
             'Sans Feature Engineering': '#3174bf',
-            'Avec Feature Engineering': '#ff7f0e'
+            'Avec Feature Engineering': '#f39c12' 
         },
-        opacity=0.4,
         template="plotly_white"
+    )
+
+    # Orange/gris en dessous (très transparent)
+    fig.update_traces(
+        marker=dict(size=3, line=dict(width=0)),
+        selector=dict(name='Avec Feature Engineering'),
+        opacity=0.2
+    )
+
+    # Bleu par-dessus (plus visible)
+    fig.update_traces(
+        marker=dict(size=4, line=dict(width=0)),
+        selector=dict(name='Sans Feature Engineering'),
+        opacity=0.6
     )
     
     # Ligne idéale
@@ -731,7 +744,7 @@ if __name__ == "__main__":
     # cylindree_vs_emissions_graph(processed_data)
     # correlation_matrix_graph(processed_data)
     # first_models_graphs(processed_data)
-    classification_model_graph(processed_data)
+    # classification_model_graph(processed_data)
     random_forest_without_fuel_comparison_graph(processed_data)
     create_feature_importance_without_fuel_graph(processed_data)
 
