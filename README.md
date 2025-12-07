@@ -259,8 +259,22 @@ Le modèle entraîné peut être chargé pour faire des prédictions :
 
 ``` python
 import joblib
+import pandas as pd
 
+# Chargement du pipeline complet
 model = joblib.load('models/random_forest_model.jbl.lzma')
+
+# Prédiction (les transformations sont appliquées automatiquement)
+new_vehicle = pd.DataFrame({
+    'm (kg)': [1500],
+    'Ft': ['Petrol'],
+    'ec (cm3)': [1600],
+    'ep (KW)': [110],
+    'age_months': [12]
+})
+
+predicted_co2 = model.predict(new_vehicle)
+print(f"Émissions prédites : {predicted_co2[0]:.2f} g/km")
 ```
 
 ---
