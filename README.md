@@ -8,17 +8,31 @@ Ce projet vise donc à analyser et modéliser les émissions de CO₂ des voitur
 
 ## Table des Matières
 
-- [Jeu de données](#données-utilisées)
+- [Données Utilisées](#données-utilisées)
 - [Structure du Projet](#structure-du-projet)
 - [Description des Fichiers](#description-des-fichiers)
-  - [`data_reduction.py`](#data_reductionpy)
-  - [`preprocessing.py`](#preprocessingpy)
-  - [`feature_engineering.py`](#feature_engineeringpy)
-  - [`pipepline.py`](#pipeplinepy)
-- [Prérequis](#prérequis)
+  - [data_reduction.py](#data_reductionpy)
+  - [preprocessing.py](#preprocessingpy)
+  - [feature_engineering.py](#feature_engineeringpy)
+  - [pipeline.py](#pipelinepy)
+- [Installation](#installation)
+  - [Prérequis](#prérequis)
+  - [Configuration de l'Environnement](#configuration-de-lenvironnement)
 - [Utilisation](#utilisation)
-- [Streamlit](#application-streamlit)
-- [Résultats](#résultats-du-modèle)
+  - [Pipeline Complète](#lancer-la-pipeline-complète)
+  - [Étapes Individuelles](#lancer-les-étapes-individuelles)
+- [Application Streamlit](#application-streamlit)
+  - [Exploration](#-exploration)
+  - [Résultats](#-résultats)
+  - [Prédiction](#-prédiction)
+- [Résultats et Méthodologie](#résultats-et-méthodologie-du-modèle)
+  - [Stratégie de Modélisation](#stratégie-de-modélisation)
+  - [Hyperparamètres](#hyperparamètres-du-modèle)
+  - [Feature Engineering](#feature-engineering)
+  - [Validation Croisée](#stratégie-de-validation-croisée)
+  - [Métriques de Performance](#métriques-de-performance)
+  - [Variables Influentes](#variables-les-plus-influentes)
+  - [Utilisation du Modèle](#chargement-du-modèle)
 
 ---
 
@@ -37,7 +51,7 @@ european_passenger_cars_co2/
 ├── data/
 │   └── data_processed.csv              # Données prétraitées
 │
-├── exploration/
+├── notebooks/
 │   └── *.ipynb                         # Notebooks de travail et d'exploration des données
 │
 ├── fig/
@@ -227,31 +241,126 @@ streamlit run streamlit_app/app.py
 ---
 
 
-## Résultats du Modèle
+## Résultats et Méthodologie du Modèle
 
-Le modèle Random Forest final **sans consommation de carburant** mais **avec feature engineering** a obtenu d'excellentes performances :
+### Stratégie de Modélisation
+
+Le modèle Random Forest a été sélectionné après une analyse comparative de plusieurs approches de régression (régression linéaire, Random Forest avec/sans consommation de carburant). Le choix final s'est porté sur Random Forest **sans consommation de carburant** mais **avec feature engineering** pour les raisons suivantes :
+
+- **Objectif prédictif** : Permet d'estimer les émissions avant la connaissance de la consommation réelle
+- **Interprétabilité** : Identifie l'influence réelle des caractéristiques techniques du véhicule
+- **Robustesse** : Gère efficacement les relations non-linéaires entre variables
+- **Performance** : Atteint une précision élevée tout en évitant le surapprentissage
+
+### Hyperparamètres du Modèle
+
+Le modèle Random Forest final utilise les hyperparamètres suivants :
+
+``` python
+RandomForestRegressor(
+  n_estimators=100,     # Nombre d'arbres dans la forêt
+  max_depth=20,         # Profondeur maximale des arbres
+  min_samples_split=5,  # Échantillons minimum pour diviser un nœud
+  min_samples_leaf=1,   # Échantillons minimum dans une feuille
+  bootstrap=True,       # Bootstrap des échantillons
+  random_state=42       # Reproductibilité
+)
+```
+
+Ces hyperparamètres ont été sélectionnés à l'aide d'une GridSearch (cf `notebooks/model_creation.ipynb`).
+
+### Feature Engineering
+
+Les transformations appliquées aux variables sont définies dans un `ColumnTransformer` intégré au pipeline :
+
+| Variable | Transformation | Justification |
+|----------|---------------|---------------|
+| **ec (cm3)** | StandardScaler | Normalisation de la cylindrée (distribution gaussienne) |
+| **ep (KW)** | StandardScaler | Normalisation de la puissance (distribution gaussienne) |
+| **m (kg)** | StandardScaler | Normalisation de la masse (large plage de valeurs) |
+| **age_months** | MinMaxScaler | Mise à l'échelle [0,1] de l'âge (croissance monotone) |
+| **Ft (type carburant)** | OneHotEncoder | Encodage catégoriel avec gestion des valeurs inconnues |
+
+Ces transformations permettent :
+- D'uniformiser les échelles pour éviter la dominance de certaines variables
+- De gérer correctement les variables catégorielles
+- De maintenir l'interprétabilité du modèle via SHAP
+
+### Stratégie de Validation Croisée
+
+La méthodologie d'évaluation suit un protocole en trois étapes :
+
+#### 1. Division Train/Test
+- **Ratio** : 80% entraînement / 20% test
+- **Stratification** : Aléatoire avec `random_state=42` pour reproductibilité
+- **Objectif** : Conserver un ensemble de test intact pour évaluation finale
+
+#### 2. Validation Croisée (5-Fold)
+
+``` python
+cross_validate(
+pipeline, X_train, y_train,
+cv=5, # 5 plis
+scoring={
+"neg_mse": make_scorer(mean_squared_error, greater_is_better=False),
+"r2": "r2"
+},
+return_train_score=True, # Calcul des scores d'entraînement
+n_jobs=-1 # Parallélisation
+)
+```
+
+- **5 folds** : Chaque observation sert à l'entraînement et à la validation
+- **Métriques doubles** : MSE (erreur absolue) et R² (coefficient de détermination)
+- **Détection du surapprentissage** : Comparaison train/validation scores
+
+
+#### 3. Évaluation Finale sur Test Set
+- **Données jamais vues** : Le modèle est évalué sur les 20% de données test
+- **Métriques finales** : MSE et R² calculés sur des prédictions hors échantillon
 
 ### Métriques de Performance
 
 | Ensemble | MSE (g/km) | R² | RMSE (g/km) |
 |----------|------------|-----|-------------|
-| **Entraînement** | 24,05 | 0,9866 | 4,90 |
+| **Entraînement (CV)** | 24,05 | 0,9866 | 4,90 |
 | **Validation croisée** | 34,98 | 0,9805 | 5,91 |
 | **Test** | 32,70 | 0,9816 | 5,72 |
 
-### Interprétation
+**Interprétation des résultats** :
+- **R² = 0,9816** : Le modèle explique 98,16% de la variance des émissions de CO₂
+- **RMSE = 5,72 g/km** : Erreur moyenne de prédiction faible
+- **Écart train/test minimal** : Pas de surapprentissage significatif (différence de 1,2% sur R²)
+- **Généralisation robuste** : Performances cohérentes entre validation croisée et test
 
-Ces résultats démontrent la capacité du modèle à prédire les émissions de CO₂ avec une **précision de 98,16%** sur des données non vues et avec une **erreur moyenne de prédiction d'environ 5,7 g/km**. L'alignement entre les métriques d'entraînement et de validation indique que le modèle **généralise bien sans surapprentissage** significatif.
+### Variables les Plus Influentes
 
-L'exclusion de la consommation de carburant permet d'analyser l'influence réelle des caractéristiques techniques (masse, cylindrée, puissance, type de carburant, âge) sur les émissions, rendant le modèle plus utile pour des analyses prédictives sur de nouveaux véhicules dont la consommation n'est pas encore connue.
+L'analyse SHAP (SHapley Additive exPlanations) révèle l'importance relative des features :
 
-### Variables les plus influentes
+1. **Type de carburant (Ft)** : Impact majeur, particulièrement pour les hybrides
+2. **Masse du véhicule (m)** : Corrélation positive forte avec les émissions
+3. **Cylindrée (ec)** : Indicateur clé de la consommation potentielle
+4. **Puissance (ep)** : Influence modérée
+5. **Âge (age_months)** : Impact mineur
 
-D'après l'analyse SHAP disponible dans l'application Streamlit :
-1. Type de carburant (hybride ou non)
-2. Masse du véhicule
-3. Cylindrée du moteur
-4. Puissance
+Les graphiques SHAP détaillés sont disponibles dans l'application Streamlit (page **Résultats**).
+
+### Pipeline Complet
+
+Le pipeline scikit-learn intègre toutes les transformations et le modèle :
+
+``` python
+Pipeline([
+  ('features', ColumnTransformer([...])), # Feature engineering
+  ('model', RandomForestRegressor(...))   # Modèle
+])
+```
+
+**Avantages** :
+- Pas de fuite de données (data leakage) entre train et test
+- Transformations appliquées automatiquement lors de `.predict()`
+- Reproductibilité garantie
+- Facilité de déploiement
 
 ### Chargement du Modèle
 
