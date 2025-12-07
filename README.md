@@ -5,13 +5,6 @@ Identifier les véhicules qui émettent le plus de CO2 est important pour identi
 Ce projet vise donc à analyser et modéliser les émissions de CO₂ des voitures européennes en utilisant des techniques de **prétraitement des données**, **d'ingénierie des caractéristiques**, et de **modélisation machine learning**.
 
 ---
-## TO DO
-
-- Mettre data_reduction preprocessing dans la pipeline ? Se pose la question de la taille des jeux de données
-- Nettoyage du repo (est ce qu'on garde toutes les explorations?)
-- Streamlit
-
----
 
 ## Table des Matières
 
@@ -24,13 +17,14 @@ Ce projet vise donc à analyser et modéliser les émissions de CO₂ des voitur
   - [`pipepline.py`](#pipeplinepy)
 - [Prérequis](#prérequis)
 - [Utilisation](#utilisation)
-- [Résultats](#résultats)
+- [Streamlit](#application-streamlit)
+- [Résultats](#résultats-du-modèle)
 
 ---
 
 ## Données utilisées
 
-Le jeu de données utilisé est le suivant:
+Le jeu de données utilisé est le suivant, en prenant les véhicules belges, français et allemand, immatriculés entre 2022 et 2024:
 
 https://www.eea.europa.eu/en/datahub/datahubitem-view/fa8b1229-3db6-495d-b18e-9c9b3267c02b
 
@@ -44,39 +38,42 @@ european_passenger_cars_co2/
 │   └── data_processed.csv              # Données prétraitées
 │
 ├── exploration/
-│   └── *.ipynb                         # Explorations des données
+│   └── *.ipynb                         # Notebooks de travail et d'exploration des données
 │
 ├── fig/
-│   └── *.png                           # Figures sauvegardées    
+│   ├── *.csv                           # Métriques des différents modèles
+│   └── *.html                          # Figures et graphiques interactifs (Plotly)
 │
 ├── logs/
-│   └── training.log                    # Logs des entrainements de modèles
+│   └── training.log                    # Logs des entraînements de modèles
 │
 ├── models/
-│   └── random_forest_model.jbl.lzma    # Modèle entraîné sauvegardé
+│   └── random_forest_model.jbl.lzma    # Modèle entraîné sauvegardé (compressé)
 │
 ├── scripts/
-│   ├── data_reduction.py               # Réduction et nettoyage des données
+│   ├── data_reduction.py               # Réduction et nettoyage des données brutes
 │   ├── feature_engineering.py          # Ingénierie des caractéristiques
-│   ├── pipeline.py                     # Pipeline de modélisation
+│   ├── pipeline.py                     # Pipeline de modélisation complète
 │   └── preprocessing.py                # Prétraitement des données
 │
 ├── streamlit_app/
-│   ├── pages/                          # Pages du streamlit
-│   │   ├── compare.py                  
-│   │   └── predict.py
-│   ├── utils/                          # Fichiers de config du streamlit
-│   │   ├── data_loaders.py
-│   │   ├── model_utils.py
-│   │   └── viz_tools.py
-│   └── app.py                          # Application streamlit
+│   ├── pages/                          
+│   │   ├── exploration.py              # Page d'exploration des données
+│   │   ├── predict.py                  # Page de prédiction interactive
+│   │   └── results.py                  # Page d'analyse des résultats des modèles
+│   ├── utils/                          
+│   │   ├── data_loaders.py             # Chargement des données
+│   │   ├── model_utils.py              # Utilitaires pour les modèles
+│   │   └── viz_tools.py                # Outils de visualisation
+│   ├── app.py                          # Application principale Streamlit
+│   └── make_graphs.py                  # Génération des graphiques pour Streamlit (stockés dans fig/)
 │
-├── .gitattributes                      # Configuration pour LFS
-├── .gitignore                          # Fichiers à ignorer
-├── LICENSE                             # Licence du projet
+├── .gitattributes                      # Configuration pour Git LFS
+├── .gitignore                          # Fichiers à ignorer par Git
+├── LICENSE                             # Licence du projet (MIT)
 ├── README.md                           # Documentation du projet
-└── requirements.txt                    # Prérequis à installer
-
+├── requirements.txt                    # Dépendances Python du projet
+└── Table-definition.xlsx               # Définition des colonnes du dataset
 ```
 
 ---
@@ -129,9 +126,8 @@ Pour exécuter ce projet, vous aurez besoin des bibliothèques Python suivantes 
 - `scikit-learn`
 - `shap`
 - `joblib`
-- `matplotlib`
+- `plotly`
 - `streamlit`
-- `seaborn`
 
 
 Créez un environnement virtuel :
@@ -201,38 +197,67 @@ Les étapes de la pipeline peuvent également être exécutées individuellement
 
 ---
 
-## Résultats
+## Application Streamlit
 
-**Pages streamlit**
+L'application Streamlit offre une interface interactive permettant d'explorer et d'analyser les émissions de CO₂ des voitures européennes. Elle se compose de trois pages principales :
 
-- Exploration
-  - JDD brut
-    - Valeurs nulles pour chaque colonne
-    - Type de carburant 
-    - Outliers - voitures trop puissantes (chandelier/boite à moustache)
-  - JDD réduit
-    - Matrice de corrélation
-    - Nuage de points sur différentes caractéristiques (masse, ec, ep)
-  - JDD processed
-    - Résultats
-      - Classification ?
-      - Valeurs prédites/valeurs réelles (régression linéaire/random forest)
-      - SHAP
+#### 📊 Exploration
+Analyse exploratoire du jeu de données brut avant traitement, comprenant :
+- **Taux de complétion des colonnes** : Visualisation du pourcentage de valeurs renseignées pour identifier les colonnes nécessitant un nettoyage
+- **Répartition des types de carburant** : Distribution des véhicules selon leur carburant pour identifier les types dominants
+- **Distribution de la puissance par carburant** : Détection des outliers (véhicules de sport) qui pourraient biaiser le modèle
+- **Relation cylindrée vs émissions** : Corrélation entre cylindrée et CO₂ avec lignes de régression par type de carburant
+- **Matrice de corrélation** : Relations linéaires entre caractéristiques techniques
 
-- Comparaison
-  - marque
-  - pays
+#### 📈 Résultats
+Analyse comparative des modèles de prédiction avec trois sections :
+- **Classification K-means** : Regroupement des véhicules par caractéristiques similaires (analyse exploratoire)
+- **Régression linéaire vs Random Forest (avec consommation)** : Comparaison des performances et identification de la forte corrélation entre consommation et émissions
+- **Random Forest sans consommation** : Comparaison avec/sans feature engineering pour analyser l'influence réelle des variables techniques (cylindrée, puissance, masse, âge)
 
-- Predictions
+#### 🔮 Prédiction
+Outil interactif permettant de saisir les caractéristiques d'un véhicule et d'obtenir une prédiction des émissions de CO₂ via le modèle Random Forest entraîné
 
-Pour lancer streamlit:
+Pour lancer l'application :
+
 ``` bash
 streamlit run streamlit_app/app.py
-``` 
+```
 
-Les résultats du modèle (métriques d'évaluation, modèle entraîné) sont sauvegardés dans le dossier `models/`. Vous pouvez charger le modèle sauvegardé avec `joblib` pour faire des prédictions :
+---
 
-```python
+
+## Résultats du Modèle
+
+Le modèle Random Forest final **sans consommation de carburant** mais **avec feature engineering** a obtenu d'excellentes performances :
+
+### Métriques de Performance
+
+| Ensemble | MSE (g/km) | R² | RMSE (g/km) |
+|----------|------------|-----|-------------|
+| **Entraînement** | 24,05 | 0,9866 | 4,90 |
+| **Validation croisée** | 34,98 | 0,9805 | 5,91 |
+| **Test** | 32,70 | 0,9816 | 5,72 |
+
+### Interprétation
+
+Ces résultats démontrent la capacité du modèle à prédire les émissions de CO₂ avec une **précision de 98,16%** sur des données non vues et avec une **erreur moyenne de prédiction d'environ 5,7 g/km**. L'alignement entre les métriques d'entraînement et de validation indique que le modèle **généralise bien sans surapprentissage** significatif.
+
+L'exclusion de la consommation de carburant permet d'analyser l'influence réelle des caractéristiques techniques (masse, cylindrée, puissance, type de carburant, âge) sur les émissions, rendant le modèle plus utile pour des analyses prédictives sur de nouveaux véhicules dont la consommation n'est pas encore connue.
+
+### Variables les plus influentes
+
+D'après l'analyse SHAP disponible dans l'application Streamlit :
+1. Type de carburant (hybride ou non)
+2. Masse du véhicule
+3. Cylindrée du moteur
+4. Puissance
+
+### Chargement du Modèle
+
+Le modèle entraîné peut être chargé pour faire des prédictions :
+
+``` python
 import joblib
 
 model = joblib.load('models/random_forest_model.jbl.lzma')
