@@ -16,6 +16,32 @@ def run_results_page():
     st.divider()
 
     st.markdown("""
+    ## Classification des Véhicules (K-means Clustering)
+    #### Analyse exploratoire des groupes de véhicules similaires
+    """)
+    
+    classification_graph_path = Path('fig/classification_model.html')
+    if classification_graph_path.exists():
+        with open(classification_graph_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        st.components.v1.html(html_content, height=650, scrolling=True)
+    else:
+        st.warning("⚠️ Le fichier 'classification_model.html' n'a pas été trouvé dans le dossier 'fig/'.")
+    
+    
+    st.markdown("""
+    **Interprétation :** 
+                
+    Le graphique montre comment les véhicules se regroupent en fonction de leurs caractéristiques techniques, 
+    et comment ceux-ci s'alignent fortement avec le type de carburant utilisé (essence, diesel, hybride).
+                
+    Cela ne nous aide pas forcément pour classifier les véhicules en fonction de leurs émissions de CO₂, puisque les clusters sont dominés par le type de carburant.
+    Il convient donc de se concentrer sur des modèles de régression pour prédire précisément les émissions de CO₂.
+    """)
+
+    st.divider()
+
+    st.markdown("""
     ## Régression linéaire vs Random Forest
     #### Consommation de carburant inclue comme variable prédictive.
     """)

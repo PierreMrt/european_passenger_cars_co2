@@ -459,7 +459,7 @@ def classification_model_graph(df):
     df_plot = pd.DataFrame({
         "PC1": X_pca[:, 0],
         "PC2": X_pca[:, 1],
-        "Cluster": clusters,
+        "Cluster": clusters.astype(str),  # Convertir en string pour meilleure légende
         "Carburant": data["Ft"].values
     })
 
@@ -470,13 +470,38 @@ def classification_model_graph(df):
         color="Cluster",
         symbol="Carburant",
         title="Clustering K-means des véhicules (PCA 2D)",
-        labels={"PC1": "Composante principale 1", "PC2": "Composante principale 2"},
-        template="plotly_white"
+        labels={
+            "PC1": "Composante principale 1", 
+            "PC2": "Composante principale 2",
+            "Cluster": "Groupe"
+        },
+        template="plotly_white",
+        opacity=0.6
     )
-
+    
+    # Ajuster la légende pour éviter le chevauchement
+    fig.update_layout(
+        width=700,
+        height=600,
+        legend=dict(
+            orientation="v",
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=1.02,  # Place la légende à droite du graphique
+            bgcolor="rgba(255, 255, 255, 0.9)",
+            bordercolor="lightgray",
+            borderwidth=1
+        ),
+        margin=dict(r=200),  # Ajouter de la marge à droite pour la légende
+        hovermode='closest'
+    )
+    
+    fig.write_html('fig/classification_model.html')
     print("✓ Graphique de classification généré.")
-
+    
     return fig
+
 
 
 def random_forest_without_fuel_comparison_graph(df):
@@ -744,8 +769,8 @@ if __name__ == "__main__":
     # cylindree_vs_emissions_graph(processed_data)
     # correlation_matrix_graph(processed_data)
     # first_models_graphs(processed_data)
-    # classification_model_graph(processed_data)
-    random_forest_without_fuel_comparison_graph(processed_data)
-    create_feature_importance_without_fuel_graph(processed_data)
+    classification_model_graph(processed_data)
+    # random_forest_without_fuel_comparison_graph(processed_data)
+    # create_feature_importance_without_fuel_graph(processed_data)
 
     print("\n✅ Tous les graphiques ont été générés avec succès!")
