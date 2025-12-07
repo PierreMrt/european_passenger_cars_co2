@@ -1,56 +1,7 @@
-import matplotlib.pyplot as plt
 from .model_utils import prettify_feature_name
 
 import pandas as pd
 import plotly.express as px
-
-def brand_country_comparison_plot(data, group_by, group_by_fr, metric):
-    """
-    Génère un graphique comparant une métrique moyenne par marque ou par pays avec Plotly.
-
-    Args:
-        data (pandas.DataFrame): Données contenant les émissions et caractéristiques des véhicules.
-        group_by (str): Colonne pour grouper les données, soit 'Mk' (Marque) ou 'Country' (Pays).
-        metric (str): Nom de la métrique à analyser (Émissions de CO₂, Taille du moteur, Puissance, Âge).
-
-    Returns:
-        plotly.graph_objs._figure.Figure: Figure du graphique à barres.
-    """
-    metric_map = {
-        "Émissions de CO₂": "Ewltp (g/km)",
-        "Taille du moteur": "ec (cm3)",
-        "Puissance": "ep (KW)",
-        "Âge": "age_months"
-    }
-    
-    # Sélection de la colonne de groupement
-    group_col = "Mk" if group_by == "Mk" else "Country"
-    # Sélection de la colonne de métrique
-    metric_col = metric_map.get(metric, metric)
-
-    # Calcul de la moyenne et tri
-    grouped_df = data.groupby(group_col)[metric_col].mean().sort_values().reset_index()
-
-    # Création du graphique
-    fig = px.bar(
-        grouped_df,
-        x=group_col,
-        y=metric_col,
-        title=f"{metric} par {group_by_fr}",
-        labels={group_col: group_by_fr, metric_col: metric},
-        color=metric_col,
-        color_continuous_scale='Blues' 
-    )
-
-    # Amélioration de la mise en page
-    fig.update_layout(
-        showlegend=False, 
-        xaxis_title=group_by_fr,
-        yaxis_title=metric,
-        coloraxis_showscale=False
-    )
-
-    return fig
 
 
 def plot_shap_values(shap_values, feature_names, feature_labels):
