@@ -8,6 +8,8 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
 from sklearn.metrics import r2_score, mean_squared_error
 import plotly.express as px
 import plotly.io as pio
@@ -331,7 +333,8 @@ def create_feature_importance_graph(feature_importances, feature_names, top_n=15
 
 def first_models_graphs(df):
     """
-    Fonction principale pour générer tous les graphiques de résultats.
+    Entraîne des modèles de régression linéaire et Random Forest,
+    génère et sauvegarde les graphiques de leurs performances.
     """
     
     # Préparation des données
@@ -422,18 +425,314 @@ def first_models_graphs(df):
     )
     fig_importance.write_html('fig/feature_importance.html')
     print("✓ Graphique sauvegardé: fig/feature_importance.html")
+
+
+
+def classification_model_graph(df):
+    """
+    Crée un graphique de classification des véhicules en utilisant K-means clustering.
+    """
+    num_features = ["Fuel consumption", "ep (KW)", "m (kg)", "age_months", "ec (cm3)"]
+    cat_features = ["Ft"]
+
+    data = df[num_features + cat_features].dropna()
+
+    # Encodage One-Hot des catégories
+    data_encoded = pd.get_dummies(data, columns=cat_features, drop_first=True)
+
+    # Standardisation des données
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(data_encoded)
+
+    # K-means clustering
+    k = 4
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
+    clusters = kmeans.fit_predict(X_scaled)
+
+    data_encoded["cluster"] = clusters
+
+    # Visualisation 2D (réduction par PCA)
+    from sklearn.decomposition import PCA
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(X_scaled)
+
+    df_plot = pd.DataFrame({
+        "PC1": X_pca[:, 0],
+        "PC2": X_pca[:, 1],
+        "Cluster": clusters,
+        "Carburant": data["Ft"].values
+    })
+
+    fig = px.scatter(
+        df_plot,
+        x="PC1",
+        y="PC2",
+        color="Cluster",
+        symbol="Carburant",
+        title="Clustering K-means des véhicules (PCA 2D)",
+        labels={"PC1": "Composante principale 1", "PC2": "Composante principale 2"},
+        template="plotly_white"
+    )
+
+    print("✓ Graphique de classification généré.")
+
+    return fig
+
+
+def random_forest_without_fuel_comparison_graph(df):
+    """
+    Crée et sauvegarde le graphique de comparaison Random Forest sans consommation de carburant:
+    - Sans feature engineering
+    - Avec feature engineering
+    """
+    from sklearn.ensemble import RandomForestRegressor
+    from scripts.feature_engineering import get_feature_transformer
     
+    target = "Ewltp (g/km)"
+    
+    # Features SANS Fuel consumption
+    num_features = [
+        "ec (cm3)",
+        "ep (KW)",
+        "m (kg)",
+        "age_months",
+    ]
+    
+    cat_features = ["Ft"]
+    
+    # Vérifier les colonnes disponibles
+    num_features = [c for c in num_features if c in df.columns]
+    cat_features = [c for c in cat_features if c in df.columns]
+    
+    data = df[num_features + cat_features + [target]].copy()
+    
+    # Conversion numérique
+    for c in num_features + [target]:
+        data[c] = pd.to_numeric(data[c], errors="coerce")
+    
+    data = data.dropna(subset=num_features + cat_features + [target])
+    
+    print("\n=== Random Forest SANS Fuel consumption ===")
+    
+    # ========== SANS Feature Engineering ==========
+    print("\n1. Sans feature engineering...")
+    data_encoded_no_fe = pd.get_dummies(data, columns=cat_features, drop_first=True)
+    
+    X_no_fe = data_encoded_no_fe.drop(columns=[target])
+    y = data_encoded_no_fe[target]
+    
+    X_train_no_fe, X_test_no_fe, y_train, y_test = train_test_split(
+        X_no_fe, y, test_size=0.2, random_state=42
+    )
+    
+    rf_no_fe = RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1)
+    rf_no_fe.fit(X_train_no_fe, y_train)
+    y_pred_no_fe = rf_no_fe.predict(X_test_no_fe)
+    
+    r2_no_fe = r2_score(y_test, y_pred_no_fe)
+    rmse_no_fe = np.sqrt(mean_squared_error(y_test, y_pred_no_fe))
+    
+    print(f"   R²: {r2_no_fe:.4f}, RMSE: {rmse_no_fe:.3f}")
+    
+    # ========== AVEC Feature Engineering ==========
+    print("2. Avec feature engineering...")
+    
+    # Préparer le transformer
+    transformer = get_feature_transformer()
+    
+    X_raw = data[num_features + cat_features]
+    
+    X_train_raw, X_test_raw, y_train_fe, y_test_fe = train_test_split(
+        X_raw, y, test_size=0.2, random_state=42
+    )
+    
+    # Appliquer la transformation
+    X_train_fe = transformer.fit_transform(X_train_raw)
+    X_test_fe = transformer.transform(X_test_raw)
+    
+    rf_fe = RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1)
+    rf_fe.fit(X_train_fe, y_train_fe)
+    y_pred_fe = rf_fe.predict(X_test_fe)
+    
+    r2_fe = r2_score(y_test_fe, y_pred_fe)
+    rmse_fe = np.sqrt(mean_squared_error(y_test_fe, y_pred_fe))
+    
+    print(f"   R²: {r2_fe:.4f}, RMSE: {rmse_fe:.3f}")
+    
+    # ========== Création du graphique ==========
+    df_plot = pd.DataFrame({
+        'Valeurs réelles': list(y_test) + list(y_test_fe),
+        'Valeurs prédites': list(y_pred_no_fe) + list(y_pred_fe),
+        'Modèle': ['Sans Feature Engineering'] * len(y_test) + ['Avec Feature Engineering'] * len(y_test_fe)
+    })
+    
+    fig = px.scatter(
+        df_plot,
+        x='Valeurs réelles',
+        y='Valeurs prédites',
+        color='Modèle',
+        title='Random Forest sans Fuel consumption : Impact du Feature Engineering',
+        labels={
+            'Valeurs réelles': 'Valeurs réelles (Ewltp g/km)',
+            'Valeurs prédites': 'Valeurs prédites (Ewltp g/km)'
+        },
+        color_discrete_map={
+            'Sans Feature Engineering': '#3174bf',
+            'Avec Feature Engineering': '#ff7f0e'
+        },
+        opacity=0.4,
+        template="plotly_white"
+    )
+    
+    # Ligne idéale
+    y_min, y_max = df_plot['Valeurs réelles'].min(), df_plot['Valeurs réelles'].max()
+    fig.add_scatter(
+        x=[y_min, y_max],
+        y=[y_min, y_max],
+        mode='lines',
+        name='Idéal',
+        line=dict(color='red', dash='dash', width=2)
+    )
+    
+    # Mise à jour des légendes avec les scores R²
+    fig.for_each_trace(
+        lambda trace: trace.update(name=f"Sans FE (R²={r2_no_fe:.3f})") 
+        if trace.name == "Sans Feature Engineering" 
+        else trace.update(name=f"Avec FE (R²={r2_fe:.3f})") 
+        if trace.name == "Avec Feature Engineering" 
+        else trace
+    )
+    
+    fig.update_layout(
+        xaxis_title='Valeurs réelles (Ewltp g/km)',
+        yaxis_title='Valeurs prédites (Ewltp g/km)',
+        legend_title='Modèle',
+        hovermode='closest',
+        width=700
+    )
+    
+    fig.write_html('fig/rf_no_fuel_comparison.html')
+    print("✓ Graphique sauvegardé: fig/rf_no_fuel_comparison.html")
+    
+    # Sauvegarder les métriques
+    metrics = {
+        'r2_no_fe': r2_no_fe,
+        'rmse_no_fe': rmse_no_fe,
+        'r2_fe': r2_fe,
+        'rmse_fe': rmse_fe
+    }
+    
+    metrics_df = pd.DataFrame([metrics])
+    metrics_df.to_csv('fig/rf_no_fuel_metrics.csv', index=False)
+    print("✓ Métriques sauvegardées: fig/rf_no_fuel_metrics.csv")
+
+
+def create_feature_importance_without_fuel_graph(df):
+    """
+    Crée le graphique d'importance des features pour le Random Forest 
+    sans fuel consumption avec feature engineering.
+    """
+    from sklearn.ensemble import RandomForestRegressor
+    from scripts.feature_engineering import get_feature_transformer
+    
+    target = "Ewltp (g/km)"
+    
+    num_features = [
+        "ec (cm3)",
+        "ep (KW)",
+        "m (kg)",
+        "age_months",
+    ]
+    
+    cat_features = ["Ft"]
+    
+    num_features = [c for c in num_features if c in df.columns]
+    cat_features = [c for c in cat_features if c in df.columns]
+    
+    data = df[num_features + cat_features + [target]].copy()
+    
+    for c in num_features + [target]:
+        data[c] = pd.to_numeric(data[c], errors="coerce")
+    
+    data = data.dropna(subset=num_features + cat_features + [target])
+    
+    print("\n=== Importance des Features (avec FE, sans Fuel consumption) ===")
+    
+    transformer = get_feature_transformer()
+    
+    X_raw = data[num_features + cat_features]
+    y = data[target]
+    
+    X_train_raw, X_test_raw, y_train, y_test = train_test_split(
+        X_raw, y, test_size=0.2, random_state=42
+    )
+    
+    X_train = transformer.fit_transform(X_train_raw)
+    X_test = transformer.transform(X_test_raw)
+    
+    rf = RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1)
+    rf.fit(X_train, y_train)
+    
+    # Récupérer les noms des features après transformation
+    feature_names = []
+    
+    # Features numériques (gardent leur nom)
+    feature_names.extend(['ec (cm3)', 'ep (KW)', 'm (kg)', 'age_months'])
+    
+    # Features catégorielles (OneHotEncoder)
+    if hasattr(transformer.named_transformers_['Ft'], 'get_feature_names_out'):
+        ft_features = transformer.named_transformers_['Ft'].get_feature_names_out(['Ft'])
+        feature_names.extend(ft_features)
+    
+    # Créer le graphique
+    feat_imp_df = pd.DataFrame({
+        'Caractéristique': feature_names,
+        'Importance': rf.feature_importances_
+    }).sort_values(by='Importance', ascending=False).head(15)
+    
+    feat_imp_df = feat_imp_df.iloc[::-1]
+    
+    fig = px.bar(
+        feat_imp_df,
+        x='Importance',
+        y='Caractéristique',
+        orientation='h',
+        title='Importances des variables (RF avec FE, sans Fuel consumption)',
+        labels={
+            'Importance': 'Importance',
+            'Caractéristique': ''
+        },
+        color='Importance',
+        color_continuous_scale='Blues',
+        template="plotly_white" 
+    )
+    
+    fig.update_layout(
+        xaxis_title='Importance',
+        yaxis_title='',
+        showlegend=False,
+        coloraxis_showscale=False,
+        width=700
+    )
+    
+    fig.write_html('fig/feature_importance_no_fuel.html')
+    print("✓ Graphique sauvegardé: fig/feature_importance_no_fuel.html")
+
+
 
 if __name__ == "__main__":
     raw_data = pd.read_csv('data/data.csv', low_memory=False)
     reduced_data = pd.read_csv('data/data_reduced.csv', low_memory=False)
     processed_data = pd.read_csv("data/data_processed.csv", low_memory=False)
 
-    columns_completion_graph(raw_data)
-    """     fuel_type_distribution_graph(raw_data)
-    boxplot_by_fuel_type_graph(reduced_data)
-    cylindree_vs_emissions_graph(processed_data)
-    correlation_matrix_graph(processed_data)
-    first_models_graphs(processed_data) """
+    # columns_completion_graph(raw_data)
+    # fuel_type_distribution_graph(raw_data)
+    # boxplot_by_fuel_type_graph(reduced_data)
+    # cylindree_vs_emissions_graph(processed_data)
+    # correlation_matrix_graph(processed_data)
+    # first_models_graphs(processed_data)
+    classification_model_graph(processed_data)
+    random_forest_without_fuel_comparison_graph(processed_data)
+    create_feature_importance_without_fuel_graph(processed_data)
 
     print("\n✅ Tous les graphiques ont été générés avec succès!")
