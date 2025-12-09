@@ -83,3 +83,6 @@ def run_predict_page():
             st.plotly_chart(fig, width='stretch')
         else:
             st.write(f"Importances des variables : {explanation}")
+
+if __name__ == "__main__":
+    run_predict_page()
