@@ -4,6 +4,7 @@ from utils.data_loaders import load_model, get_input_features, load_processed_da
 from utils.model_utils import predict_emission, explain_prediction, prettify_feature_name,  calculate_emission_percentile
 from utils.viz_tools import plot_shap_values
 
+
 def run_predict_page():
     """
     Affiche la page de prédiction des émissions de CO₂ dans l'application Streamlit.
