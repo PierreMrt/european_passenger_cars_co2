@@ -27,7 +27,7 @@ def del_columns(df):
         # Colonnes à supprimer car pas assez remplies
         'RLFI', 'z (Wh/km)', 'Erwltp (g/km)', 'IT', 'ech',
         # Colonnes à supprimer car doublons d'information
-        'Mp', 'Mh', 'Man', 'Cr', 'Mt', 'Fm', 'VFN', 'Cn',
+        'Mp', 'Mh', 'Man', 'Cr', 'Mt', 'Fm', 'VFN',
         # Colonnes à supprimer car non pertinentes
         'ID', 'Status', 'r', 'year', 'Tan', 'Va', 'Ve', 'Ct', 'Cr', 'T',
         # Colonnes concernant uniquement les véhicules électriques

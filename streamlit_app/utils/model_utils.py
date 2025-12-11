@@ -1,4 +1,5 @@
 import shap
+import pandas as pd
 
 
 def calculate_emission_percentile(predicted_emission, data):
@@ -86,3 +87,81 @@ def prettify_feature_name(name, feature_labels):
         level = level.replace("Ft_", "")
         return f"{base} : {level}"
     return feature_labels.get(name, name)
+
+
+def find_similar_less_polluting_cars(user_inputs, data, prediction, top_n=3, tolerance=0.15):
+    """
+    Trouve les véhicules similaires moins polluants avec le même type de carburant
+    et des caractéristiques dans une tolérance de ±10%.
+    
+    Args:
+        user_inputs (dict): Les caractéristiques du véhicule sélectionné par l'utilisateur
+        data (pd.DataFrame): Le jeu de données complet (data_processed.csv)
+        prediction (float): L'émission de CO₂ prédite pour le véhicule de l'utilisateur
+        top_n (int): Nombre de véhicules à retourner
+        tolerance (float): Tolérance en pourcentage (0.10 = 10%)
+    
+    Returns:
+        pd.DataFrame: Les véhicules similaires moins polluants
+    """
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.metrics.pairwise import cosine_similarity
+    import numpy as np
+    
+    # Colonnes numériques pour calculer la similarité (sans age_months)
+    numeric_features = ["ec (cm3)", "ep (KW)", "m (kg)"]
+    
+    # Filtrer les véhicules avec Cn non nul
+    data_clean = data[data['Cn'].notna()].copy()
+    
+    # Filtrer par le même type de carburant
+    if 'Ft' in user_inputs:
+        data_clean = data_clean[data_clean['Ft'] == user_inputs['Ft']]
+    
+    # Filtrer les véhicules moins polluants
+    less_polluting = data_clean[data_clean['Ewltp (g/km)'] < prediction].copy()
+    
+    if len(less_polluting) == 0:
+        return pd.DataFrame()
+    
+    # Appliquer les filtres de tolérance ±10% pour chaque caractéristique
+    for feat in numeric_features:
+        user_value = user_inputs[feat]
+        min_value = user_value * (1 - tolerance)
+        max_value = user_value * (1 + tolerance)
+        less_polluting = less_polluting[
+            (less_polluting[feat] >= min_value) & 
+            (less_polluting[feat] <= max_value)
+        ]
+    
+    if len(less_polluting) == 0:
+        return pd.DataFrame()
+    
+    # Préparer les données pour le calcul de similarité
+    user_values = np.array([[user_inputs[feat] for feat in numeric_features]])
+    car_values = less_polluting[numeric_features].values
+    
+    # Normaliser les valeurs
+    scaler = StandardScaler()
+    all_values = np.vstack([user_values, car_values])
+    scaled_values = scaler.fit_transform(all_values)
+    
+    user_scaled = scaled_values[0:1]
+    cars_scaled = scaled_values[1:]
+    
+    # Calculer la similarité cosinus
+    similarities = cosine_similarity(user_scaled, cars_scaled)[0]
+    
+    # Ajouter les scores de similarité
+    less_polluting['similarity_score'] = similarities
+    
+    # Trier par émissions (croissant) puis par similarité (décroissant)
+    similar_cars = less_polluting.sort_values(
+        by=['Ewltp (g/km)', 'similarity_score'], 
+        ascending=[True, False]
+    )
+    
+    # Supprimer les doublons basés sur Cn (garder le premier = le moins polluant)
+    similar_cars = similar_cars.drop_duplicates(subset=['Cn'], keep='first')
+    
+    return similar_cars.head(top_n)
