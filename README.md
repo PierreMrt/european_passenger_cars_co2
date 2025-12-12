@@ -230,7 +230,9 @@ Analyse comparative des modèles de prédiction avec trois sections :
 - **Random Forest sans consommation** : Comparaison avec/sans feature engineering pour analyser l'influence réelle des variables techniques (cylindrée, puissance, masse, âge)
 
 #### 🔮 Prédiction
-Outil interactif permettant de saisir les caractéristiques d'un véhicule et d'obtenir une prédiction des émissions de CO₂ via le modèle Random Forest entraîné
+Outil interactif permettant de sélectionner un modèle de véhicule et/ou de saisir manuellement les caractéristiques et d'obtenir une prédiction des émissions de CO₂ via le modèle Random Forest entraîné.
+
+L'utiliisateur se verra ensuite proposer 3 modèles avec des caractéristiques similaires (+/- 15%), ayant une plus faible émission de co2.
 
 Pour lancer l'application :
 
