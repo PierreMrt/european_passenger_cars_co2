@@ -283,7 +283,7 @@ def run_predict_page():
                 
                 st.info("💡 Ces véhicules ont le même type de carburant et des caractéristiques similaires aux vôtres, mais émettent moins de CO₂.")
             else:
-                st.warning(f"Aucun véhicule similaire moins polluant trouvé avec le type de carburant {fuel_display.get(user_inputs['Ft'], user_inputs['Ft'])} et des caractéristiques dans une marge de ±10%.")
+                st.warning(f"Aucun véhicule similaire moins polluant trouvé avec le type de carburant {fuel_display.get(user_inputs['Ft'], user_inputs['Ft'])} et des caractéristiques dans une marge de ±15%.")
             
             # === SECTION EXPLICATION DE LA PRÉDICTION ===
             st.markdown("---")
